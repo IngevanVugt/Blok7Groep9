@@ -39,7 +39,7 @@ public class blastORFs {
         return conn;
     }
 
-    private static String convertXMLFileToString(String ORFfile, int ORFnum, int ORF_Id)
+    private static String convertXMLFileToString(String ORFfile, int ORFnum)
             throws IOException, SQLException {
         /**
          * The convertXMLFileToString class takes an XML file as input, puts it in a text document and
@@ -48,7 +48,6 @@ public class blastORFs {
          * input:
          * ORFfile; the XML file to read
          * ORFnum; the number of the ORF
-         * ORF_id: het id van de orf
          *
          * output:
          * NextORF; the XML file as string
@@ -74,11 +73,13 @@ public class blastORFs {
         int QueryCover = 0;
         String hit_seq = null;
         int Blast_id = 0;
+        int ORF_Id = 0;
         Statement stmt = conn.createStatement();
-        String strSelect = "select max(BlastResultaten_ID) from BlastResultaten";
+        String strSelect = "select max(BlastResultaten_ID), max (ORF_ID) from BlastResultaten, ORF";
         ResultSet rset = stmt.executeQuery(strSelect);
         while(rset.next()) {
             Blast_id = rset.getInt("max(BlastResultaten_ID)") + 1;
+            ORF_Id = rset.getInt("max(ORF_ID)");
         }
         while (line != null) {
             NextORF.append(line).append("\n");
@@ -193,10 +194,9 @@ public class blastORFs {
         int ORFnum = 1;
         String BlastString = "";
         List<String> ORFS = Arrays.asList("MKWVTFISLLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCP");     // Blast query sequence//TODO dit zijn de ORF sequenties
-        int ORF_Id = 999;//TODO placeholder
         for (int i = 0; i< ORFS.size(); i++) {
             String ORFfile = GenerateXML(ORFS.get(i));
-            String NextORF = convertXMLFileToString(ORFfile, ORFnum, ORF_Id);
+            String NextORF = convertXMLFileToString(ORFfile, ORFnum);
             BlastString += NextORF;
             ORFnum += 1;
         }
