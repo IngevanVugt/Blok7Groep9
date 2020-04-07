@@ -109,10 +109,8 @@ public class DeORFVoorspeller extends JFrame{
             try {
                 ArrayList<String> GevondenORFs = new ReadingFrame().ORFVoorspellen(DNASequentie);
                 textAreaDNASequentie.append("De gevonden ORFs:" + "\n");
-                int numORF = 1;
                 for (String gevondenORF : GevondenORFs) {
-                    textAreaDNASequentie.append(numORF + ": " + gevondenORF + "\n");
-                    numORF += 1;
+                    textAreaDNASequentie.append(gevondenORF + "\n");
                 }
             } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -122,15 +120,12 @@ public class DeORFVoorspeller extends JFrame{
     static class Blast implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEVent) {
-            int ORFnum = 0;
-
             try {
                 textAreaDNASequentie.append("waiting for blast results. this may take a while." + "\n");
-                for (String gevondenORF : GevondenORFs) {
-                    textAreaDNASequentie.append("blasting ORF no. " +  ORFnum + "please wait.\n");
-                    String resultString = new blastORFs().main(GevondenORFs, ORFnum);
+                for(int i = 0; i < GevondenORFs.size(); i++) {
+                    textAreaDNASequentie.append("blasting ORF no. " +  i+1 + "please wait.\n");
+                    String resultString = new blastORFs().main(GevondenORFs, i);
                     textAreaDNASequentie.append(resultString + "\n");
-                    ORFnum += 1;
                 }
             } catch (SQLException | IOException e) {
                 e.printStackTrace();
