@@ -109,7 +109,7 @@ public class blastORFs {
                         "BlastResultaten_ID) VALUES ('" + Hsp_evalue + "', '" + QueryCover + "', '" + Hsp_identity + "', " +
                         "'" + Hit_accesion + "', '" + Hit_def + "', '" + hit_seq + "', '" + ORF_Id + "', " +
                         "'" + Blast_id + "')");
-                String newLine = "E-value: " + Hsp_evalue + "\nQuery Coverage: " + QueryCover + "\nPercentage Identity: " + Hsp_identity + "\nAccessiecode: " + "Titel: " + Hit_def + "Sequentie: " + hit_seq + "\n" ;
+                String newLine = "\nE-value: " + Hsp_evalue + "\nQuery Coverage: " + QueryCover + "\nPercentage Identity: " + Hsp_identity + "\nAccessiecode: " + Hit_accesion +  "\nTitel: " + Hit_def + "\nSequentie:\n " + hit_seq + "\n" ;
                 NextORF.append(newLine);
                 posted.execute();
                 Blast_id += 1;
