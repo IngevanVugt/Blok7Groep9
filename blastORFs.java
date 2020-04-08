@@ -82,17 +82,16 @@ public class blastORFs {
             ORF_Id = rset2.getInt("max(ORF_ID)");
         }
         while (line != null) {
-            NextORF.append(line).append("\n");
 
              if (line.matches("^  <Hit_def>.*</Hit_def>$")) {
                 Hit_def = line.substring(11, line.length() - 10);
             } else if (line.matches("^  <Hit_accession>.*</Hit_accession>$")) {
                 Hit_accesion = line.substring(17, line.length() - 16);
-            } else if (line.matches("^      <Hsp_evalue>.*</Hsp_evalue>$")) {
+             } else if (line.matches("^      <Hsp_evalue>.*</Hsp_evalue>$")) {
                 Hsp_evalue = line.substring(18, line.length() - 13);
-            } else if (line.matches("^      <Hsp_query-from>.*</Hsp_query-from>$")) {
+             } else if (line.matches("^      <Hsp_query-from>.*</Hsp_query-from>$")) {
                 Hsp_query_from = Integer.parseInt(line.substring(22, line.length() - 17));
-            } else if (line.matches("^      <Hsp_query-to>.*</Hsp_query-to>$")) {
+             } else if (line.matches("^      <Hsp_query-to>.*</Hsp_query-to>$")) {
                 Hsp_query_to = Integer.parseInt(line.substring(20, line.length() - 15));
             } else if (line.matches("^      <Hsp_qseq>.*</Hsp_qseq>$")) {
                 Hsp_qseq = line.substring(16, line.length() - 11);
@@ -110,6 +109,8 @@ public class blastORFs {
                         "BlastResultaten_ID) VALUES ('" + Hsp_evalue + "', '" + QueryCover + "', '" + Hsp_identity + "', " +
                         "'" + Hit_accesion + "', '" + Hit_def + "', '" + hit_seq + "', '" + ORF_Id + "', " +
                         "'" + Blast_id + "')");
+                String newLine = "E-value: " + Hsp_evalue + "\nQuery Coverage: " + QueryCover + "\nPercentage Identity: " + Hsp_identity + "\nAccessiecode: " + "Titel: " + Hit_def + "Sequentie: " + hit_seq + "\n" ;
+                NextORF.append(newLine);
                 posted.execute();
                 Blast_id += 1;
             }
