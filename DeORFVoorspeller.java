@@ -112,6 +112,7 @@ public class DeORFVoorspeller extends JFrame{
                 for (String gevondenORF : GevondenORFs) {
                     textAreaDNASequentie.append(gevondenORF + "\n");
                 }
+                textAreaDNASequentie.append("\n");
             } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -123,7 +124,7 @@ public class DeORFVoorspeller extends JFrame{
             try {
                 textAreaDNASequentie.append("waiting for blast results. this may take a while." + "\n");
                 for(int i = 0; i < GevondenORFs.size(); i++) {
-                    textAreaDNASequentie.append("blasting ORF no. " +  i+1 + "please wait.\n");
+                    textAreaDNASequentie.append("blasting ORF no. " +  i+1 + " please wait.\n");
                     String resultString = new blastORFs().main(GevondenORFs, i);
                     textAreaDNASequentie.append(resultString + "\n");
                 }

@@ -1,4 +1,3 @@
-
 import java.io.*;
 
 import static org.biojava.nbio.ws.alignment.qblast.BlastAlignmentParameterEnum.ENTREZ_QUERY;
@@ -84,7 +83,7 @@ public class blastORFs {
         while (line != null) {
             NextORF.append(line).append("\n");
 
-             if (line.matches("^  <Hit_def>.*</Hit_def>$")) {
+            if (line.matches("^  <Hit_def>.*</Hit_def>$")) {
                 Hit_def = line.substring(11, line.length() - 10);
             } else if (line.matches("^  <Hit_accession>.*</Hit_accession>$")) {
                 Hit_accesion = line.substring(17, line.length() - 16);

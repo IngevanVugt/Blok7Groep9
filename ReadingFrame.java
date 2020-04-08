@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.sql.*;
@@ -6,29 +7,9 @@ public class ReadingFrame {
     private static ArrayList<String> GevondenORFs;
     private static int GenoomSequentieId;
     private static int ORFId;
-    private static int countInserted;
-
-    public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException {
-        String sequentie = Sequentie();
-        ORFVoorspellen(sequentie);
-        DatabaseOphalen();
-        DatabaseToevoegen();
-    }
-
-    private static String Sequentie() throws IOException {
-        String sequentie = "";
-        File file = new File("C:\\Users\\ingev\\OneDrive\\Documenten\\Han jaar 2\\Tutor\\Blok 7\\Week4-6\\SD.fa");
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        String regel="";
-        while ((regel=br.readLine())!=null){
-            regel = regel.replace("\n", "");
-            sequentie = sequentie + regel;
-        }
-        return sequentie;
-    }
 
 
-    private static void ORFVoorspellen(String sequentie){
+    public ArrayList<String> ORFVoorspellen(String sequentie) throws SQLException, ClassNotFoundException {
         String codon = "";
         boolean ORF = false;
         String Orf = "";
@@ -55,28 +36,45 @@ public class ReadingFrame {
                 }
             }
         }
+        DatabaseOphalen();
+        return GevondenORFs;
     }
 
-    private static void DatabaseOphalen() throws SQLException, ClassNotFoundException {
+    public static void DatabaseOphalen() throws SQLException, ClassNotFoundException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://remotemysql.com:3306/NRCP73s0H5",
                 "NRCP73s0H5", "T10HedMmpO");
         Statement stmt = conn.createStatement();
-        String strSelect = "select max(Sequentie_ID), max(ORF_ID) from Genoom, ORF";
-        ResultSet rset = stmt.executeQuery(strSelect);
-        while(rset.next()) {
-            GenoomSequentieId = rset.getInt("max(Sequentie_ID)");
-            ORFId = rset.getInt("max(ORF_ID)");
+        try{
+            String strSelect = "select max(Sequentie_ID) from Genoom";
+            ResultSet rset = stmt.executeQuery(strSelect);
+            while(rset.next()) {
+                GenoomSequentieId = rset.getInt("max(Sequentie_ID)");
+            }
+            Statement stmt2 = conn.createStatement();
+            String strSelect2 = "select max(ORF_ID) from ORF";
+            ResultSet rset2 = stmt2.executeQuery(strSelect2);
+            while(rset2.next()) {
+                ORFId = rset2.getInt("max(ORF_ID)");
+            }
+        }catch (java.sql.SQLIntegrityConstraintViolationException e){
+            String strSelect = "select max(Sequentie_ID) from Genoom";
+            ResultSet rset = stmt.executeQuery(strSelect);
+            while (rset.next()){
+                GenoomSequentieId = rset.getInt("max(Sequentie_ID)");
+                ORFId = 0;
+            }
         }
+        DatabaseToevoegen();
     }
 
-    private static void DatabaseToevoegen() throws SQLException {
+    public static void DatabaseToevoegen() throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://remotemysql.com:3306/NRCP73s0H5",
                 "NRCP73s0H5", "T10HedMmpO");
         Statement stmt = conn.createStatement();
         for (String gevondenORF : GevondenORFs) {
             String insert = String.format("insert into ORF values ('%s', %d, %d)", gevondenORF,
                     GenoomSequentieId, ++ORFId);
-            countInserted = stmt.executeUpdate(insert);
+            stmt.executeUpdate(insert);
         }
     }
 
