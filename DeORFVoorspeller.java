@@ -107,7 +107,7 @@ public class DeORFVoorspeller extends JFrame{
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             try {
-                ArrayList<String> GevondenORFs = new ReadingFrame().ORFVoorspellen(DNASequentie);
+                GevondenORFs = new ReadingFrame().ORFVoorspellen(DNASequentie);
                 textAreaDNASequentie.append("De gevonden ORFs:" + "\n");
                 for (String gevondenORF : GevondenORFs) {
                     textAreaDNASequentie.append(gevondenORF + "\n");
