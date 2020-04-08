@@ -71,7 +71,7 @@ public class ReadingFrame {
                 "NRCP73s0H5", "T10HedMmpO");
         Statement stmt = conn.createStatement();
         for (String gevondenORF : GevondenORFs) {
-            String insert = String.format("insert into ORF values ('%s', %o, %s)", gevondenORF,
+            String insert = String.format("insert into ORF values ('%s', %d, %d)", gevondenORF,
                     GenoomSequentieId, ++ORFId);
             stmt.executeUpdate(insert);
         }
