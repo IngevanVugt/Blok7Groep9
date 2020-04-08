@@ -1,3 +1,4 @@
+
 import java.io.*;
 
 import static org.biojava.nbio.ws.alignment.qblast.BlastAlignmentParameterEnum.ENTREZ_QUERY;
@@ -83,7 +84,7 @@ public class blastORFs {
         while (line != null) {
             NextORF.append(line).append("\n");
 
-            if (line.matches("^  <Hit_def>.*</Hit_def>$")) {
+             if (line.matches("^  <Hit_def>.*</Hit_def>$")) {
                 Hit_def = line.substring(11, line.length() - 10);
             } else if (line.matches("^  <Hit_accession>.*</Hit_accession>$")) {
                 Hit_accesion = line.substring(17, line.length() - 16);
@@ -193,7 +194,8 @@ public class blastORFs {
          */
         String BlastString = "";
         String ORFnucleo = "";
-        ORFnucleo = ORFS.get(ORFnum).substring(3, ORFnucleo.length() - 3);
+        ORFnucleo = ORFS.get(ORFnum);
+        ORFnucleo = ORFnucleo.substring(3, ORFnucleo.length() - 3);
         StringBuilder ORFString = new StringBuilder();
         for(int i = 0; i < ORFnucleo.length()-2; i = i+3){
             String codon = String.valueOf(ORFnucleo.charAt(i)) + String.valueOf(ORFnucleo.charAt(i+1)) +
@@ -253,7 +255,6 @@ public class blastORFs {
             }
         }
         String ORFfile = GenerateXML(ORFString.toString());
-        System.out.println(ORFString);
         String NextORF = convertXMLFileToString(ORFfile.toString(), ORFnum);
         BlastString += NextORF + "\n\n";
         BlastString += "results saved in " + ORFfile;
