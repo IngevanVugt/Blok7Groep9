@@ -74,7 +74,7 @@ public class blastORFs {
             Blast_id = rset.getInt("max(BlastResultaten_ID)");
         }
         Blast_id += 1;
-        System.out.println(Blast_id);
+        //System.out.println(Blast_id);
         Statement stmt2 = conn.createStatement();
         String strSelect2 = "select max(ORF_ID) from ORF";
         ResultSet rset2 = stmt2.executeQuery(strSelect2);
@@ -151,7 +151,7 @@ public class blastORFs {
 
             // wait until results become available.
             while (!service.isReady(rid)) {
-                System.out.println("Waiting for results. Sleeping for 5 seconds");
+                //System.out.println("Waiting for results. Sleeping for 5 seconds");
                 Thread.sleep(5000);
             }
 
@@ -161,7 +161,7 @@ public class blastORFs {
 
             // write blast output to file
             File f = new File(BLAST_OUTPUT_FILE);
-            System.out.println("Saving query results in file " + f.getAbsolutePath());
+            //System.out.println("Saving query results in file " + f.getAbsolutePath());
             writer = new FileWriter(f);
 
             String line;
@@ -173,7 +173,7 @@ public class blastORFs {
 
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
             e.printStackTrace();
             return XMLfile;
 
@@ -255,7 +255,7 @@ public class blastORFs {
             }
         }
         String ORFfile = GenerateXML(ORFString.toString());
-        String NextORF = convertXMLFileToString(ORFfile.toString(), ORFnum);
+        String NextORF = convertXMLFileToString(ORFfile, ORFnum);
         BlastString += NextORF + "\n\n";
         BlastString += "results saved in " + ORFfile;
         return BlastString;
