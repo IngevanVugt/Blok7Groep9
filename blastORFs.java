@@ -1,21 +1,13 @@
 
-import org.xml.sax.*;
 import java.io.*;
 
 import static org.biojava.nbio.ws.alignment.qblast.BlastAlignmentParameterEnum.ENTREZ_QUERY;
-import java.io.*;
+
 import java.sql.*;
-import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
 
 import org.biojava.nbio.core.sequence.io.util.IOUtils;
 import org.biojava.nbio.ws.alignment.qblast.*;
-
-import javax.swing.text.Document;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 
 
 public class blastORFs {
@@ -27,7 +19,8 @@ public class blastORFs {
      * @since   2020-APR-4
      */
     private static final String BLAST_OUTPUT_FILE = "blastOutput.xml";    // file to save blast results to
-    private static final List<String> ORFS = Arrays.asList("MKWVTFISLLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCP");     // Blast query sequence
+    private static int Blast_id;
+    private static int ORF_Id;
 
     public static Connection getConnection() throws SQLException {
         /**
@@ -59,7 +52,7 @@ public class blastORFs {
         reader = new BufferedReader(new FileReader(ORFfile));
         String line = reader.readLine();
         int n = 0;
-        StringBuilder NextORF = new StringBuilder("ORF " + ORFnum + ": \n");
+        StringBuilder NextORF = new StringBuilder("");
         String Hsp_midline = null;
         String Hsp_hseq = null;
         String Hsp_qseq = null;
@@ -75,24 +68,30 @@ public class blastORFs {
         int Blast_id = 0;
         int ORF_Id = 0;
         Statement stmt = conn.createStatement();
-        String strSelect = "select max(BlastResultaten_ID), max (ORF_ID) from BlastResultaten, ORF";
+        String strSelect = "select max(BlastResultaten_ID) from BlastResultaten";
         ResultSet rset = stmt.executeQuery(strSelect);
         while(rset.next()) {
-            Blast_id = rset.getInt("max(BlastResultaten_ID)") + 1;
-            ORF_Id = rset.getInt("max(ORF_ID)");
+            Blast_id = rset.getInt("max(BlastResultaten_ID)");
+        }
+        Blast_id += 1;
+        //System.out.println(Blast_id);
+        Statement stmt2 = conn.createStatement();
+        String strSelect2 = "select max(ORF_ID) from ORF";
+        ResultSet rset2 = stmt2.executeQuery(strSelect2);
+        while(rset2.next()) {
+            ORF_Id = rset2.getInt("max(ORF_ID)");
         }
         while (line != null) {
-            NextORF.append(line).append("\n");
 
              if (line.matches("^  <Hit_def>.*</Hit_def>$")) {
                 Hit_def = line.substring(11, line.length() - 10);
             } else if (line.matches("^  <Hit_accession>.*</Hit_accession>$")) {
                 Hit_accesion = line.substring(17, line.length() - 16);
-            } else if (line.matches("^      <Hsp_evalue>.*</Hsp_evalue>$")) {
+             } else if (line.matches("^      <Hsp_evalue>.*</Hsp_evalue>$")) {
                 Hsp_evalue = line.substring(18, line.length() - 13);
-            } else if (line.matches("^      <Hsp_query-from>.*</Hsp_query-from>$")) {
+             } else if (line.matches("^      <Hsp_query-from>.*</Hsp_query-from>$")) {
                 Hsp_query_from = Integer.parseInt(line.substring(22, line.length() - 17));
-            } else if (line.matches("^      <Hsp_query-to>.*</Hsp_query-to>$")) {
+             } else if (line.matches("^      <Hsp_query-to>.*</Hsp_query-to>$")) {
                 Hsp_query_to = Integer.parseInt(line.substring(20, line.length() - 15));
             } else if (line.matches("^      <Hsp_qseq>.*</Hsp_qseq>$")) {
                 Hsp_qseq = line.substring(16, line.length() - 11);
@@ -110,7 +109,10 @@ public class blastORFs {
                         "BlastResultaten_ID) VALUES ('" + Hsp_evalue + "', '" + QueryCover + "', '" + Hsp_identity + "', " +
                         "'" + Hit_accesion + "', '" + Hit_def + "', '" + hit_seq + "', '" + ORF_Id + "', " +
                         "'" + Blast_id + "')");
+                String newLine = "\nE-value: " + Hsp_evalue + "\nQuery Coverage: " + QueryCover + "\nPercentage Identity: " + Hsp_identity + "\nAccessiecode: " + Hit_accesion +  "\nTitel: " + Hit_def + "\nSequentie:\n " + hit_seq + "\n" ;
+                NextORF.append(newLine);
                 posted.execute();
+                Blast_id += 1;
             }
             // read next line
             line = reader.readLine();
@@ -150,7 +152,7 @@ public class blastORFs {
 
             // wait until results become available.
             while (!service.isReady(rid)) {
-                System.out.println("Waiting for results. Sleeping for 5 seconds");
+                //System.out.println("Waiting for results. Sleeping for 5 seconds");
                 Thread.sleep(5000);
             }
 
@@ -160,7 +162,7 @@ public class blastORFs {
 
             // write blast output to file
             File f = new File(BLAST_OUTPUT_FILE);
-            System.out.println("Saving query results in file " + f.getAbsolutePath());
+            //System.out.println("Saving query results in file " + f.getAbsolutePath());
             writer = new FileWriter(f);
 
             String line;
@@ -172,7 +174,7 @@ public class blastORFs {
 
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
             e.printStackTrace();
             return XMLfile;
 
@@ -187,21 +189,77 @@ public class blastORFs {
         }
     }
 
-    public static void main(String[] args) throws SQLException, IOException {
+    public static String main(ArrayList<String> ORFS, int ORFnum) throws SQLException, IOException {
         /**
          * The main function ties together all the other functions
          */
-        int ORFnum = 1;
         String BlastString = "";
-        List<String> ORFS = Arrays.asList("MKWVTFISLLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCP");     // Blast query sequence//TODO dit zijn de ORF sequenties
-        for (int i = 0; i< ORFS.size(); i++) {
-            String ORFfile = GenerateXML(ORFS.get(i));
-            String NextORF = convertXMLFileToString(ORFfile, ORFnum);
-            BlastString += NextORF;
-            ORFnum += 1;
+        String ORFnucleo = "";
+        ORFnucleo = ORFS.get(ORFnum);
+        ORFnucleo = ORFnucleo.substring(3, ORFnucleo.length() - 3);
+        StringBuilder ORFString = new StringBuilder();
+        for(int i = 0; i < ORFnucleo.length()-2; i = i+3){
+            String codon = String.valueOf(ORFnucleo.charAt(i)) + String.valueOf(ORFnucleo.charAt(i+1)) +
+                    String.valueOf(ORFnucleo.charAt(i+2));
+            if(codon.equalsIgnoreCase("gct") || codon.equalsIgnoreCase("gcc") ||
+                    codon.equalsIgnoreCase("gca")|| codon.equalsIgnoreCase("gcg")){
+                ORFString.append("A");
+            } else if(codon.equalsIgnoreCase("cgt") || codon.equalsIgnoreCase("cgc") ||
+                    codon.equalsIgnoreCase("cga")|| codon.equalsIgnoreCase("cgg") ||
+                    codon.equalsIgnoreCase("aga") || codon.equalsIgnoreCase("agg")){
+                ORFString.append("R");
+            } else if(codon.equalsIgnoreCase("aat") || codon.equalsIgnoreCase("aac")){
+                ORFString.append("N");
+            } else if(codon.equalsIgnoreCase("gat") || codon.equalsIgnoreCase("gac")){
+                ORFString.append("D");
+            } else if(codon.equalsIgnoreCase("tgt") || codon.equalsIgnoreCase("tgc")){
+                ORFString.append("C");
+            } else if(codon.equalsIgnoreCase("caa") || codon.equalsIgnoreCase("cag")){
+                ORFString.append("Q");
+            } else if(codon.equalsIgnoreCase("gaa") || codon.equalsIgnoreCase("gag")){
+                ORFString.append("E");
+            } else if(codon.equalsIgnoreCase("ggt") || codon.equalsIgnoreCase("ggc") ||
+                    codon.equalsIgnoreCase("gga") || codon.equalsIgnoreCase("ggg")){
+                ORFString.append("G");
+            } else if(codon.equalsIgnoreCase("cat") || codon.equalsIgnoreCase("cac")){
+                ORFString.append("H");
+            } else if(codon.equalsIgnoreCase("att") || codon.equalsIgnoreCase("atc") ||
+                    codon.equalsIgnoreCase("ata")){
+                ORFString.append("I");
+            } else if(codon.equalsIgnoreCase("ctt") || codon.equalsIgnoreCase("ctc") ||
+                    codon.equalsIgnoreCase("cta")|| codon.equalsIgnoreCase("ctg") ||
+                    codon.equalsIgnoreCase("tta") || codon.equalsIgnoreCase("ttg")){
+                ORFString.append("L");
+            } else if(codon.equalsIgnoreCase("aaa") || codon.equalsIgnoreCase("aag")){
+                ORFString.append("K");
+            } else if(codon.equalsIgnoreCase("atg")){
+                ORFString.append("M");
+            } else if(codon.equalsIgnoreCase("ttt") || codon.equalsIgnoreCase("ttc")){
+                ORFString.append("F");
+            } else if(codon.equalsIgnoreCase("cct") || codon.equalsIgnoreCase("ccc") ||
+                    codon.equalsIgnoreCase("cca") || codon.equalsIgnoreCase("ccg")){
+                ORFString.append("P");
+            } else if(codon.equalsIgnoreCase("tct") || codon.equalsIgnoreCase("tcc") ||
+                    codon.equalsIgnoreCase("tca")|| codon.equalsIgnoreCase("tcg") ||
+                    codon.equalsIgnoreCase("agt") || codon.equalsIgnoreCase("agc")){
+                ORFString.append("S");
+            } else if(codon.equalsIgnoreCase("act") || codon.equalsIgnoreCase("acc") ||
+                    codon.equalsIgnoreCase("aca") || codon.equalsIgnoreCase("acg")){
+                ORFString.append("T");
+            } else if(codon.equalsIgnoreCase("tgg")){
+                ORFString.append("W");
+            } else if(codon.equalsIgnoreCase("tat") || codon.equalsIgnoreCase("tac")){
+                ORFString.append("Y");
+            } else if(codon.equalsIgnoreCase("gtt") || codon.equalsIgnoreCase("gtc") ||
+                    codon.equalsIgnoreCase("gta") || codon.equalsIgnoreCase("gtg")){
+                ORFString.append("V");
+            }
         }
-        System.out.println(BlastString);
-
+        String ORFfile = GenerateXML(ORFString.toString());
+        String NextORF = convertXMLFileToString(ORFfile, ORFnum);
+        BlastString += NextORF + "\n\n";
+        BlastString += "results saved in " + ORFfile;
+        return BlastString;
     }
 
 }
