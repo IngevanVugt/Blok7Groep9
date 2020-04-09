@@ -57,7 +57,7 @@ public class Sequentie {
             for (String line; (line = br.readLine()) != null; ) {
                 if (!line.isEmpty()) {
                     line = line.toLowerCase();
-                    if (!line.startsWith(">") && line.matches("^[cagt]+$")) {
+                    if (!line.startsWith(">") && line.matches("^[cagtn]+$")) {
                         DNAsequentie = DNAsequentie + line;
                     }
                 } else {
