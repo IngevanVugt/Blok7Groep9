@@ -194,7 +194,7 @@ public class blastORFs {
          * The main function ties together all the other functions
          */
         String BlastString = "";
-        String ORFnucleo = "";
+        String ORFnucleo = "";//TODO Alles vanaf dit tot generateXML kan in een eigen functie en dat kan dan ORFString returnen
         ORFnucleo = ORFS.get(ORFnum);
         ORFnucleo = ORFnucleo.substring(3, ORFnucleo.length() - 3);
         StringBuilder ORFString = new StringBuilder();
@@ -255,7 +255,7 @@ public class blastORFs {
                 ORFString.append("V");
             }
         }
-        String ORFfile = GenerateXML(ORFString.toString());
+        String ORFfile = GenerateXML(ORFString.toString());//TODO vgm was tostring hier redundant
         String NextORF = convertXMLFileToString(ORFfile, ORFnum);
         BlastString += NextORF + "\n\n";
         BlastString += "results saved in " + ORFfile;
