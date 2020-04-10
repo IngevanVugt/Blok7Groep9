@@ -63,7 +63,7 @@ public class DeORFVoorspeller extends JFrame{
         voorspel.addActionListener(new Voorspel());
         panel1.add(voorspel);
         
-        //Aangezien blasten zolang duurt is het misschien beter om een textarea toe te voegen waar je dan 1 ORF kiest om te blasten.
+        //TODO Aangezien blasten zolang duurt is het misschien beter om een textarea toe te voegen waar je dan 1 ORF kiest om te blasten.
 
         JButton blast = new JButton("Blast alle gevonden ORF's");
         blast.addActionListener(new Blast());
