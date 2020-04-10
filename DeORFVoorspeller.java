@@ -7,6 +7,14 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Deze class laat de GUI zien en zorgt voor interactie tussen verschillende classes
+ * @author Inge van Vugt en Maite van den Noort
+ * @version 2.0
+ * @since 10-4-2020
+ */
+
+
 public class DeORFVoorspeller extends JFrame{
 
     private static JTextField textFieldBestand;
@@ -15,14 +23,21 @@ public class DeORFVoorspeller extends JFrame{
     private static String DNASequentie;
     private static ArrayList<String> GevondenORFs;
 
+    /**
+     * De main zorgt voor een frame van de GUI en roept de functie createGUI().
+     */
     public static void main(String[] args) {
         DeORFVoorspeller frame = new DeORFVoorspeller();
-        frame.greateGUI();
+        frame.createGUI();
         frame.setSize(600, 600);
         frame.setVisible(true);
     }
 
-    private void greateGUI() {
+    /**
+     * Deze functie zorgt voor de layout van de GUI. Deze bestaat uit verschillende buttons die verscillende
+     * classes aanroepen. Ook is er een tekstarea aanwezig voor de informatie die erin wordt weergegeven.
+     */
+    private void createGUI() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Container window = getContentPane();
         window.setLayout(new FlowLayout());
@@ -52,39 +67,39 @@ public class DeORFVoorspeller extends JFrame{
         panel3.add(textFieldBestand);
 
         JButton blader = new JButton("Blader");
-        blader.addActionListener(new fileChooserButton());
+        blader.addActionListener(new fileChooserButton()); // bestand kiezen
         panel1.add(blader);
 
         JButton open = new JButton("Open");
-        open.addActionListener(new bestandOpenen());
+        open.addActionListener(new bestandOpenen()); //bestand openen
         panel1.add(open);
 
         JButton voorspel = new JButton("Voorspel de ORF's");
-        voorspel.addActionListener(new Voorspel());
+        voorspel.addActionListener(new Voorspel()); //ORF class
         panel1.add(voorspel);
-        
-        //TODO Aangezien blasten zolang duurt is het misschien beter om een textarea toe te voegen waar je dan 1 ORF kiest om te blasten.
 
         JButton blast = new JButton("Blast alle gevonden ORF's");
-        blast.addActionListener(new Blast());
+        blast.addActionListener(new Blast()); //blast class
         panel1.add(blast);
 
         textAreaDNASequentie = new JTextArea(20, 50);
-        JScrollPane scrollableTextArea = new JScrollPane(textAreaDNASequentie);
+        JScrollPane scrollableTextArea = new JScrollPane(textAreaDNASequentie); // een scrollbar aanmaken
         scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         panel1.add(scrollableTextArea);
-
-        // print orf resultaten
-
-        //print blast resultaten
     }
+
+
+    /**
+     * Deze class zorgt ervoor dat er naar de andere class de functie voor de filechooser wordt aangeroepen
+     * en dat het mogelijk wordt gemaakt om een bestand te kiezen, deze wordt weergegeven in de GUI.
+     */
     static class fileChooserButton implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            Sequentie inleesobject = new Sequentie(); // miss inleesobject nog hernoemen
+            Sequentie inleesobject = new Sequentie();
             try {
-                bestand = inleesobject.fileChooser(); // roept de functie fileChooser aan in Sequentie
+                bestand = inleesobject.fileChooser(); // Gaat de FileChooser functie aanroepen
                 textFieldBestand.setText(bestand.getAbsolutePath());
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -92,6 +107,10 @@ public class DeORFVoorspeller extends JFrame{
         }
     }
 
+    /**
+     * Deze class zorgt ervoor dat er naar de andere class de functie voor het inlezen van het bestand wordt aangeroepen
+     * Nadat deze is ingelezen en geen foutmeldingen zijn opgetreden wordt de sequentie weergegeven in de GUI.
+     */
     static class bestandOpenen implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent actionEvent){
@@ -105,11 +124,15 @@ public class DeORFVoorspeller extends JFrame{
         }
     }
 
+    /**
+     * Deze class zorgt ervoor dat er naar de andere class de functie voor het voorspellen van de ORFs worden
+     * voorspeld. Na het voorspellen van de ORFs worden alle gevonden ORFs in de GUI weergegeven.
+     */
     static class Voorspel implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             try {
-                GevondenORFs = new ReadingFrame().ORFVoorspellen(DNASequentie);
+                GevondenORFs = new ReadingFrame().ORFVoorspellen(DNASequentie); //Functie voor ORFs voorspellen
                 textAreaDNASequentie.append("De gevonden ORFs:" + "\n");
                 for (String gevondenORF : GevondenORFs) {
                     textAreaDNASequentie.append(gevondenORF + "\n");
@@ -121,6 +144,10 @@ public class DeORFVoorspeller extends JFrame{
         }
     }
 
+    /**
+     * Deze class zorgt ervoor dat er naar de andere class de functie voor het blasten van alle ORFs wordt aangeroepen
+     * Na het blasten wordt steeds het resultaat van de blast weergegeven in de GUI.
+     */
     static class Blast implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEVent) {
@@ -129,7 +156,7 @@ public class DeORFVoorspeller extends JFrame{
                 for(int i = 0; i < GevondenORFs.size(); i++) {
                     textAreaDNASequentie.append("blasting ORF no. " +  (i+1) + " please wait.\n");
                     new blastORFs();
-                    String resultString = blastORFs.main(GevondenORFs, i);
+                    String resultString = blastORFs.main(GevondenORFs, i); //ORF blasten
                     textAreaDNASequentie.append(resultString + "\n");
                 }
             } catch (SQLException | IOException e) {
